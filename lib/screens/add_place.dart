@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:favorite_places/providers/user_places.dart';
+import 'package:favorite_places/widgets/image_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -13,10 +16,11 @@ class AddPlaceScreen extends ConsumerStatefulWidget {
 
 class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
   final _titleController = TextEditingController();
-
+  File? _selectedImage;
+  //save new place
   void _savePlace() {
     final enteredTitle = _titleController.text;
-    if (enteredTitle.isEmpty) {
+    if (enteredTitle.isEmpty || _selectedImage == null) {
       ScaffoldMessenger.of(context).clearSnackBars();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -25,11 +29,12 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
       );
       return;
     }
-    ref.read(userPlacesProvider.notifier).addPlace(enteredTitle);
+    ref
+        .read(userPlacesProvider.notifier)
+        .addPlace(enteredTitle, _selectedImage!);
 
     Navigator.of(context).pop();
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -46,6 +51,12 @@ class _AddPlaceScreenState extends ConsumerState<AddPlaceScreen> {
               ),
               style: TextStyle(color: Theme.of(context).colorScheme.onSurface),
               controller: _titleController,
+            ),
+            const SizedBox(height: 16),
+            ImageInput(
+              onPickImage: (image) {
+                _selectedImage = image;
+              },
             ),
             const SizedBox(height: 16),
             ElevatedButton.icon(
